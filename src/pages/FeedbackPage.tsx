@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import {
+  Alert,
   Button,
   Title,
   Text,
@@ -11,9 +12,17 @@ import {
   Form,
   FormGroup,
   TextInput,
-  Spinner,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateHeader,
+  EmptyStateIcon,
+  ProgressStep,
+  ProgressStepper,
 } from '@patternfly/react-core';
 import { useMutation } from '@tanstack/react-query';
+import { CubesIcon } from '@patternfly/react-icons';
+
+const DEMO_REQUEST_DELAY_MS = 1500;
 
 /**
  * Fixed patterns:
@@ -53,18 +62,28 @@ function LoadingStateDemo() {
 
   const handleSave = async () => {
     setIsLoading(true);
-    await fetch('/api/save', { method: 'POST' });
-    setIsLoading(false);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, DEMO_REQUEST_DELAY_MS));
+      await fetch('/api/save', { method: 'POST' });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <Card>
       <CardTitle>missing-loading-state (fixed)</CardTitle>
-      <CardBody>
-        {isLoading && <Spinner aria-label="Saving changes" />}
-        <Button variant="primary" onClick={handleSave} isDisabled={isLoading}>
+      <CardBody style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <Button
+          variant="primary"
+          onClick={handleSave}
+          isLoading={isLoading}
+          isDisabled={isLoading}
+          spinnerAriaValueText="Saving changes"
+        >
           Save changes
         </Button>
+        {isLoading && <Text component="p">Saving your changes…</Text>}
       </CardBody>
     </Card>
   );
@@ -78,7 +97,15 @@ function EmptyStateDemo() {
       <CardTitle>missing-empty-state (fixed)</CardTitle>
       <CardBody>
         {items.length === 0 ? (
-          <EmptyState message="No team items yet" />
+          <EmptyState variant="sm">
+            <EmptyStateHeader
+              titleText="No team items yet"
+              icon={<EmptyStateIcon icon={CubesIcon} />}
+            />
+            <EmptyStateBody>
+              <Text component="p">Team items you create will appear here.</Text>
+            </EmptyStateBody>
+          </EmptyState>
         ) : (
           <DataList aria-label="Team items" items={items} />
         )}
@@ -88,10 +115,6 @@ function EmptyStateDemo() {
 }
 
 function DataList({ items }: { items: { id: string; name: string }[] }) {
-  if (items.length === 0) {
-    return <EmptyState message="No team items yet" />;
-  }
-
   return (
     <ul>
       {items.map((item) => (
@@ -101,13 +124,12 @@ function DataList({ items }: { items: { id: string; name: string }[] }) {
   );
 }
 
-function EmptyState({ message }: { message: string }) {
-  return <p>{message}</p>;
-}
-
 function CreateItemDemo() {
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
   const mutation = useMutation({
     mutationFn: async (data: Record<string, string>) => {
+      await new Promise((resolve) => setTimeout(resolve, DEMO_REQUEST_DELAY_MS));
       const res = await fetch('/api/items', {
         method: 'POST',
         body: JSON.stringify(data),
@@ -115,6 +137,7 @@ function CreateItemDemo() {
       return res.json();
     },
     onSuccess: () => {
+      setSuccessMessage('Item created successfully.');
       console.log('toast.success: Item created');
     },
   });
@@ -122,15 +145,28 @@ function CreateItemDemo() {
   return (
     <Card>
       <CardTitle>missing-success-feedback (fixed)</CardTitle>
-      <CardBody>
-        {mutation.isPending && <Spinner aria-label="Creating item" />}
+      <CardBody style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        {successMessage && (
+          <Alert
+            variant="success"
+            title="Success"
+            isInline
+            timeout={4000}
+            onTimeout={() => setSuccessMessage(null)}
+          >
+            {successMessage}
+          </Alert>
+        )}
         <Button
           variant="primary"
+          isLoading={mutation.isPending}
           isDisabled={mutation.isPending}
+          spinnerAriaValueText="Creating item"
           onClick={() => mutation.mutate({ name: 'demo' })}
         >
           Create item
         </Button>
+        {mutation.isPending && <Text component="p">Creating item…</Text>}
       </CardBody>
     </Card>
   );
@@ -140,8 +176,18 @@ function ProgressIndicatorDemo() {
   return (
     <Card>
       <CardTitle>no-progress-indicator (fixed)</CardTitle>
-      <CardBody>
-        <ProgressIndicator step={2} total={3} />
+      <CardBody style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <ProgressStepper aria-label="Organization setup progress">
+          <ProgressStep variant="success" aria-label="Step 1 complete">
+            Account
+          </ProgressStep>
+          <ProgressStep isCurrent aria-label="Step 2 current">
+            Organization
+          </ProgressStep>
+          <ProgressStep variant="pending" aria-label="Step 3 pending">
+            Review
+          </ProgressStep>
+        </ProgressStepper>
         <WizardStep step={2}>
           <Form>
             <FormGroup label="Organization name" fieldId="org-name">
@@ -155,10 +201,6 @@ function ProgressIndicatorDemo() {
       </CardBody>
     </Card>
   );
-}
-
-function ProgressIndicator({ step, total }: { step: number; total: number }) {
-  return <p aria-label="Progress">Step {step} of {total}</p>;
 }
 
 function WizardStep({ children }: { step: number; children: ReactNode }) {

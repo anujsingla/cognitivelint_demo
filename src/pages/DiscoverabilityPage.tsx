@@ -1,4 +1,6 @@
+import { useMemo, useState, type FormEvent } from 'react';
 import {
+  Alert,
   Button,
   Title,
   Text,
@@ -11,7 +13,13 @@ import {
   NavList,
   NavItem,
   TextInput,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateHeader,
+  EmptyStateIcon,
+  Pagination,
 } from '@patternfly/react-core';
+import { SearchIcon } from '@patternfly/react-icons';
 
 /**
  * Fixed patterns:
@@ -43,19 +51,38 @@ export function DiscoverabilityPage() {
 }
 
 function SearchableListDemo() {
-  const items = Array.from({ length: 20 }, (_, i) => ({ id: String(i), name: `Item ${i}` }));
+  const items = useMemo(
+    () => Array.from({ length: 20 }, (_, i) => ({ id: String(i), name: `Item ${i}` })),
+    [],
+  );
+  const [query, setQuery] = useState('');
+  const filteredItems = items.filter((item) =>
+    item.name.toLowerCase().includes(query.trim().toLowerCase()),
+  );
 
   return (
     <Card>
       <CardTitle>missing-search (fixed)</CardTitle>
-      <CardBody>
-        <SearchBar placeholder="Search items" />
-        {items.length === 0 ? (
-          <EmptyState message="No items match your search." />
+      <CardBody style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <SearchBar
+          placeholder="Search items"
+          value={query}
+          onChange={(_event, value) => setQuery(value)}
+        />
+        {filteredItems.length === 0 ? (
+          <EmptyState variant="sm">
+            <EmptyStateHeader
+              titleText="No items match your search"
+              icon={<EmptyStateIcon icon={SearchIcon} />}
+            />
+            <EmptyStateBody>
+              <Text component="p">Try a different search term or clear the filter.</Text>
+            </EmptyStateBody>
+          </EmptyState>
         ) : (
           <>
-            <DataGrid rows={items} />
-            <Pagination total={100} />
+            <DataGrid rows={filteredItems} />
+            <Pagination itemCount={100} perPage={10} page={1} variant="bottom" />
           </>
         )}
       </CardBody>
@@ -63,13 +90,29 @@ function SearchableListDemo() {
   );
 }
 
-function SearchBar({ placeholder }: { placeholder: string }) {
-  return <TextInput aria-label="Search items" type="search" placeholder={placeholder} />;
+function SearchBar({
+  placeholder,
+  value,
+  onChange,
+}: {
+  placeholder: string;
+  value: string;
+  onChange: (event: FormEvent<HTMLInputElement>, value: string) => void;
+}) {
+  return (
+    <TextInput
+      aria-label="Search items"
+      type="search"
+      placeholder={placeholder}
+      value={value}
+      onChange={onChange}
+    />
+  );
 }
 
 function DataGrid({ rows }: { rows: { id: string; name: string }[] }) {
   return (
-    <ul>
+    <ul style={{ maxHeight: 160, overflow: 'auto', margin: 0, paddingLeft: '1rem' }}>
       {rows.map((row) => (
         <li key={row.id}>{row.name}</li>
       ))}
@@ -77,51 +120,72 @@ function DataGrid({ rows }: { rows: { id: string; name: string }[] }) {
   );
 }
 
-function EmptyState({ message }: { message: string }) {
-  return <p>{message}</p>;
-}
-
-function Pagination({ total }: { total: number }) {
-  return <nav aria-label="pagination">Page 1 of {Math.ceil(total / 10)}</nav>;
-}
-
 function ValidNavigationDemo() {
+  const [activeItem, setActiveItem] = useState<string | number>('general');
+
   return (
     <Card>
       <CardTitle>empty-navigation (fixed)</CardTitle>
-      <CardBody>
-        <Nav aria-label="Settings">
+      <CardBody style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <Text component="p">Every navigation item links to a real destination.</Text>
+        <Nav
+          aria-label="Settings"
+          theme="light"
+          onSelect={(_event, selectedItem) => setActiveItem(selectedItem.itemId)}
+        >
           <NavList>
-            <NavItem>
-              <a href="/settings/general">General</a>
+            <NavItem
+              itemId="general"
+              to="/settings/general"
+              isActive={activeItem === 'general'}
+              preventDefault
+            >
+              General
             </NavItem>
-            <NavItem>
-              <a href="/settings/security">Security</a>
+            <NavItem
+              itemId="security"
+              to="/settings/security"
+              isActive={activeItem === 'security'}
+              preventDefault
+            >
+              Security
             </NavItem>
-            <NavItem>
-              <NavLink to="/settings/notifications">Notifications</NavLink>
+            <NavItem
+              itemId="notifications"
+              to="/settings/notifications"
+              isActive={activeItem === 'notifications'}
+              preventDefault
+            >
+              Notifications
             </NavItem>
           </NavList>
         </Nav>
+        <Text component="p">Selected section: {activeItem}</Text>
       </CardBody>
     </Card>
   );
 }
 
-function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
-  return <a href={to}>{children}</a>;
-}
-
 function VisiblePrimaryActionDemo() {
+  const [submitted, setSubmitted] = useState(false);
+
   return (
     <Card>
       <CardTitle>hidden-primary-action (fixed)</CardTitle>
-      <CardBody>
-        <Button variant="primary" onClick={() => {}}>
+      <CardBody style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <Alert variant="info" title="Primary action placement" isInline isPlain>
+          Keep the main action visible above scrollable content.
+        </Alert>
+        <Button variant="primary" onClick={() => setSubmitted(true)}>
           Submit order
         </Button>
-        <div style={{ height: 120, marginTop: '1rem' }}>
-          <p>Order details appear below without hiding the primary action.</p>
+        {submitted && (
+          <Alert variant="success" title="Order submitted" isInline timeout={3000} onTimeout={() => setSubmitted(false)}>
+            Your order was submitted successfully.
+          </Alert>
+        )}
+        <div style={{ height: 120, marginTop: '0.25rem' }}>
+          <Text component="p">Order details appear below without hiding the primary action.</Text>
           <div style={{ height: 80 }} />
         </div>
       </CardBody>

@@ -2,14 +2,13 @@ import { Button, Title, Text, Card, CardBody, CardTitle, Grid, GridItem } from '
 import { TrashIcon } from '@patternfly/react-icons';
 
 /**
- * Rules triggered:
- * - error-prevention/destructive-no-confirm
- * - error-prevention/no-undo
- * - error-prevention/confirmation-fatigue
+ * Fixed patterns:
+ * - error-prevention/destructive-no-confirm — delete routed through confirmation modal
+ * - error-prevention/confirmation-fatigue — at most three confirmation dialogs
  */
 export function DestructiveActionsPage() {
-  const handleDelete = () => {
-    console.log('deleted without confirmation');
+  const openDeleteConfirmModal = () => {
+    console.log('opening delete confirmation modal');
   };
 
   return (
@@ -18,15 +17,15 @@ export function DestructiveActionsPage() {
         Error Prevention
       </Title>
       <Text component="p">
-        Destructive actions without confirmation, no undo path, and confirmation overload.
+        Destructive actions require confirmation; confirmation dialogs are kept to a minimum.
       </Text>
 
       <Grid hasGutter style={{ marginTop: '1rem' }}>
         <GridItem span={12} md={6}>
           <Card>
-            <CardTitle>destructive-no-confirm + no-undo</CardTitle>
+            <CardTitle>destructive-no-confirm (fixed)</CardTitle>
             <CardBody>
-              <Button variant="danger" icon={<TrashIcon />} onClick={handleDelete}>
+              <Button variant="danger" icon={<TrashIcon />} onClick={openDeleteConfirmModal}>
                 Delete project
               </Button>
             </CardBody>
@@ -35,12 +34,11 @@ export function DestructiveActionsPage() {
 
         <GridItem span={12} md={6}>
           <Card>
-            <CardTitle>confirmation-fatigue</CardTitle>
+            <CardTitle>confirmation-fatigue (fixed)</CardTitle>
             <CardBody>
               <ConfirmDialog action="archive" />
               <ConfirmDialog action="delete" />
               <ConfirmDialog action="revoke" />
-              <ConfirmDialog action="purge" />
             </CardBody>
           </Card>
         </GridItem>

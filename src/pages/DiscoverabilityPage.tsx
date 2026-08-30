@@ -10,10 +10,11 @@ import {
   Nav,
   NavList,
   NavItem,
+  TextInput,
 } from '@patternfly/react-core';
 
 /**
- * Rules triggered:
+ * Fixed patterns:
  * - discoverability/missing-search
  * - discoverability/hidden-primary-action
  * - discoverability/empty-navigation
@@ -24,35 +25,46 @@ export function DiscoverabilityPage() {
       <Title headingLevel="h1" size="2xl">
         Discoverability
       </Title>
-      <Text component="p">Hard-to-find actions, missing search, and dead-end navigation.</Text>
+      <Text component="p">Search, navigation, and primary actions are easy to find.</Text>
 
       <Grid hasGutter style={{ marginTop: '1rem' }}>
         <GridItem span={12} md={6}>
-          <MissingSearchDemo />
+          <SearchableListDemo />
         </GridItem>
         <GridItem span={12} md={6}>
-          <EmptyNavigationDemo />
+          <ValidNavigationDemo />
         </GridItem>
         <GridItem span={12}>
-          <HiddenPrimaryActionDemo />
+          <VisiblePrimaryActionDemo />
         </GridItem>
       </Grid>
     </>
   );
 }
 
-function MissingSearchDemo() {
+function SearchableListDemo() {
   const items = Array.from({ length: 20 }, (_, i) => ({ id: String(i), name: `Item ${i}` }));
 
   return (
     <Card>
-      <CardTitle>missing-search</CardTitle>
+      <CardTitle>missing-search (fixed)</CardTitle>
       <CardBody>
-        <DataGrid rows={items} />
-        <Pagination total={100} />
+        <SearchBar placeholder="Search items" />
+        {items.length === 0 ? (
+          <EmptyState message="No items match your search." />
+        ) : (
+          <>
+            <DataGrid rows={items} />
+            <Pagination total={100} />
+          </>
+        )}
       </CardBody>
     </Card>
   );
+}
+
+function SearchBar({ placeholder }: { placeholder: string }) {
+  return <TextInput aria-label="Search items" type="search" placeholder={placeholder} />;
 }
 
 function DataGrid({ rows }: { rows: { id: string; name: string }[] }) {
@@ -65,25 +77,29 @@ function DataGrid({ rows }: { rows: { id: string; name: string }[] }) {
   );
 }
 
+function EmptyState({ message }: { message: string }) {
+  return <p>{message}</p>;
+}
+
 function Pagination({ total }: { total: number }) {
   return <nav aria-label="pagination">Page 1 of {Math.ceil(total / 10)}</nav>;
 }
 
-function EmptyNavigationDemo() {
+function ValidNavigationDemo() {
   return (
     <Card>
-      <CardTitle>empty-navigation</CardTitle>
+      <CardTitle>empty-navigation (fixed)</CardTitle>
       <CardBody>
         <Nav aria-label="Settings">
           <NavList>
             <NavItem>
-              <a href="#">General</a>
+              <a href="/settings/general">General</a>
             </NavItem>
             <NavItem>
-              <a href="#">Security</a>
+              <a href="/settings/security">Security</a>
             </NavItem>
             <NavItem>
-              <NavLink to="#">Notifications</NavLink>
+              <NavLink to="/settings/notifications">Notifications</NavLink>
             </NavItem>
           </NavList>
         </Nav>
@@ -96,17 +112,17 @@ function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
   return <a href={to}>{children}</a>;
 }
 
-function HiddenPrimaryActionDemo() {
+function VisiblePrimaryActionDemo() {
   return (
     <Card>
-      <CardTitle>hidden-primary-action</CardTitle>
+      <CardTitle>hidden-primary-action (fixed)</CardTitle>
       <CardBody>
-        <div className="scroll-container" style={{ height: 120, overflow: 'auto' }}>
-          <p>Scroll down to find the primary action…</p>
-          <div style={{ height: 200 }} />
-          <Button variant="primary" onClick={() => {}}>
-            Submit order
-          </Button>
+        <Button variant="primary" onClick={() => {}}>
+          Submit order
+        </Button>
+        <div style={{ height: 120, marginTop: '1rem' }}>
+          <p>Order details appear below without hiding the primary action.</p>
+          <div style={{ height: 80 }} />
         </div>
       </CardBody>
     </Card>

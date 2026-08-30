@@ -4,11 +4,11 @@ export function HomePage() {
   return (
     <>
       <Title headingLevel="h1" size="2xl">
-        Conference demo — intentional human bugs
+        CognitiveLint demo — fixed UX patterns
       </Title>
       <Text component="p">
-        This PatternFly app deliberately violates CognitiveLint rules so you can run a live scan
-        during your talk. Each sidebar section maps to a cognitive UX category.
+        This branch demonstrates CognitiveLint-compliant patterns across six cognitive UX
+        categories. Compare with <code>main</code> to see before/after scan results.
       </Text>
 
       <Title headingLevel="h2" size="lg" style={{ marginTop: '1.5rem' }}>
@@ -24,11 +24,12 @@ pnpm scan
       </CodeBlock>
 
       <Title headingLevel="h2" size="lg" style={{ marginTop: '1.5rem' }}>
-        What to expect
+        What to expect on this branch
       </Title>
       <List>
-        <ListItem>Built-in rules across 6 categories</ListItem>
-        <ListItem>Cognitive score</ListItem>
+        <ListItem>Significantly fewer findings than the intentional-bug baseline on main</ListItem>
+        <ListItem>Higher cognitive score after fixes</ListItem>
+        <ListItem>Each sidebar page shows the remediated pattern for its category</ListItem>
       </List>
     </>
   );

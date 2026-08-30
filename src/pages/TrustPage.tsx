@@ -10,7 +10,7 @@ import {
 } from '@patternfly/react-core';
 
 /**
- * Rules triggered:
+ * Fixed patterns:
  * - trust-confidence/unexplained-disabled
  * - trust-confidence/ownership-ambiguity
  * - trust-confidence/missing-ownership
@@ -22,51 +22,72 @@ export function TrustPage() {
         Trust &amp; Confidence
       </Title>
       <Text component="p">
-        Disabled controls without explanation, shared lists without ownership cues.
+        Disabled controls explain why they are unavailable; lists show ownership clearly.
       </Text>
 
       <Grid hasGutter style={{ marginTop: '1rem' }}>
         <GridItem span={12} md={4}>
-          <UnexplainedDisabledDemo />
+          <ExplainedDisabledDemo />
         </GridItem>
         <GridItem span={12} md={4}>
-          <OwnershipAmbiguityDemo />
+          <OwnershipClarityDemo />
         </GridItem>
         <GridItem span={12} md={4}>
-          <MissingOwnershipDemo />
+          <OwnershipMetadataDemo />
         </GridItem>
       </Grid>
     </>
   );
 }
 
-function UnexplainedDisabledDemo() {
+function ExplainedDisabledDemo() {
   return (
     <Card>
-      <CardTitle>unexplained-disabled</CardTitle>
+      <CardTitle>unexplained-disabled (fixed)</CardTitle>
       <CardBody>
-        {/* Native disabled works reliably; PatternFly isDisabled is a known gap */}
-        <button disabled onClick={() => {}}>
-          Submit application
+        <button
+          disabled
+          title="Complete all required fields before submitting"
+          aria-describedby="submit-help"
+          onClick={() => {}}
+        >
+          Send application
         </button>
-        <br />
-        <Button isDisabled style={{ marginTop: '0.5rem' }}>
-          PatternFly isDisabled (may not flag)
+        <p id="submit-help" style={{ marginTop: '0.5rem' }}>
+          Submit unlocks after profile verification completes.
+        </p>
+        <Button
+          isDisabled
+          title="Cannot save without profile changes"
+          style={{ marginTop: '0.5rem' }}
+        >
+          Save draft
         </Button>
       </CardBody>
     </Card>
   );
 }
 
-function OwnershipAmbiguityDemo() {
-  const items = [{ id: '1', name: 'Dashboard' }];
+function OwnershipClarityDemo() {
+  const items = [{ id: '1', name: 'Dashboard', owner: 'Alex Chen' }];
 
   return (
     <Card>
-      <CardTitle>ownership-ambiguity</CardTitle>
+      <CardTitle>ownership-ambiguity (fixed)</CardTitle>
       <CardBody>
         <TeamWorkspace>
-          <DataTable rows={items} />
+          {items.length === 0 ? (
+            <EmptyState message="No shared items in this workspace" />
+          ) : (
+            <DataList items={items}>
+              {items.map((item) => (
+                <li key={item.id}>
+                  <OwnerAvatar owner={item.owner} />
+                  {item.name}
+                </li>
+              ))}
+            </DataList>
+          )}
         </TeamWorkspace>
       </CardBody>
     </Card>
@@ -77,29 +98,44 @@ function TeamWorkspace({ children }: { children: React.ReactNode }) {
   return <div className="team-workspace">{children}</div>;
 }
 
-function DataTable({ rows }: { rows: { id: string; name: string }[] }) {
+function DataList({ items, children }: { items: { id: string; name: string; owner: string }[]; children?: React.ReactNode }) {
   return (
-    <table>
-      <tbody>
-        {rows.map((row) => (
-          <tr key={row.id}>
-            <td>{row.name}</td>
-          </tr>
+    <ul>
+      {children ??
+        items.map((item) => (
+          <li key={item.id}>
+            <OwnerAvatar owner={item.owner} />
+            {item.name}
+          </li>
         ))}
-      </tbody>
-    </table>
+    </ul>
   );
 }
 
-function MissingOwnershipDemo() {
-  const resources = [{ id: 'r1', name: 'Production cluster' }];
+function OwnerAvatar({ owner }: { owner: string }) {
+  return <span aria-label={`Owner: ${owner}`}>{owner}</span>;
+}
+
+function EmptyState({ message }: { message: string }) {
+  return <p>{message}</p>;
+}
+
+function OwnershipMetadataDemo() {
+  const resources = [{ id: 'r1', name: 'Production cluster', owner: 'Platform team' }];
 
   return (
     <Card>
-      <CardTitle>missing-ownership</CardTitle>
+      <CardTitle>missing-ownership (fixed)</CardTitle>
       <CardBody>
         <PermissionCheck resource="clusters">
-          <ResourceList items={resources} />
+          {resources.length === 0 ? (
+            <EmptyState message="No resources available" />
+          ) : (
+            <>
+              <ResourceList items={resources} />
+              <OwnerDisplay owner="Platform team" />
+            </>
+          )}
         </PermissionCheck>
       </CardBody>
     </Card>
@@ -110,12 +146,18 @@ function PermissionCheck({ children }: { resource: string; children: React.React
   return <div>{children}</div>;
 }
 
-function ResourceList({ items }: { items: { id: string; name: string }[] }) {
+function ResourceList({ items }: { items: { id: string; name: string; owner: string }[] }) {
   return (
     <ul>
       {items.map((item) => (
-        <li key={item.id}>{item.name}</li>
+        <li key={item.id}>
+          {item.name} — <span className="owner">{item.owner}</span>
+        </li>
       ))}
     </ul>
   );
+}
+
+function OwnerDisplay({ owner }: { owner: string }) {
+  return <p>Managed by {owner}</p>;
 }

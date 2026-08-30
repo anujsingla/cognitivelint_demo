@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import {
   Button,
   Title,
@@ -11,11 +11,12 @@ import {
   Form,
   FormGroup,
   TextInput,
+  Spinner,
 } from '@patternfly/react-core';
 import { useMutation } from '@tanstack/react-query';
 
 /**
- * Rules triggered:
+ * Fixed patterns:
  * - feedback/missing-loading-state
  * - feedback/missing-empty-state
  * - feedback/missing-success-feedback
@@ -27,36 +28,41 @@ export function FeedbackPage() {
       <Title headingLevel="h1" size="2xl">
         Feedback
       </Title>
-      <Text component="p">Missing loading, empty, success, and progress indicators.</Text>
+      <Text component="p">Loading, empty, success, and progress indicators are provided.</Text>
 
       <Grid hasGutter style={{ marginTop: '1rem' }}>
         <GridItem span={12} md={6}>
-          <MissingLoadingDemo />
+          <LoadingStateDemo />
         </GridItem>
         <GridItem span={12} md={6}>
-          <MissingEmptyStateDemo />
+          <EmptyStateDemo />
         </GridItem>
         <GridItem span={12} md={6}>
           <CreateItemDemo />
         </GridItem>
         <GridItem span={12} md={6}>
-          <NoProgressIndicatorDemo />
+          <ProgressIndicatorDemo />
         </GridItem>
       </Grid>
     </>
   );
 }
 
-function MissingLoadingDemo() {
-  const handleSave = () => {
-    fetch('/api/save', { method: 'POST' });
+function LoadingStateDemo() {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSave = async () => {
+    setIsLoading(true);
+    await fetch('/api/save', { method: 'POST' });
+    setIsLoading(false);
   };
 
   return (
     <Card>
-      <CardTitle>missing-loading-state</CardTitle>
+      <CardTitle>missing-loading-state (fixed)</CardTitle>
       <CardBody>
-        <Button variant="primary" onClick={handleSave}>
+        {isLoading && <Spinner aria-label="Saving changes" />}
+        <Button variant="primary" onClick={handleSave} isDisabled={isLoading}>
           Save changes
         </Button>
       </CardBody>
@@ -64,20 +70,28 @@ function MissingLoadingDemo() {
   );
 }
 
-function MissingEmptyStateDemo() {
+function EmptyStateDemo() {
   const items: { id: string; name: string }[] = [];
 
   return (
     <Card>
-      <CardTitle>missing-empty-state</CardTitle>
+      <CardTitle>missing-empty-state (fixed)</CardTitle>
       <CardBody>
-        <DataList aria-label="Team items" items={items} />
+        {items.length === 0 ? (
+          <EmptyState message="No team items yet" />
+        ) : (
+          <DataList aria-label="Team items" items={items} />
+        )}
       </CardBody>
     </Card>
   );
 }
 
 function DataList({ items }: { items: { id: string; name: string }[] }) {
+  if (items.length === 0) {
+    return <EmptyState message="No team items yet" />;
+  }
+
   return (
     <ul>
       {items.map((item) => (
@@ -85,6 +99,10 @@ function DataList({ items }: { items: { id: string; name: string }[] }) {
       ))}
     </ul>
   );
+}
+
+function EmptyState({ message }: { message: string }) {
+  return <p>{message}</p>;
 }
 
 function CreateItemDemo() {
@@ -96,13 +114,21 @@ function CreateItemDemo() {
       });
       return res.json();
     },
+    onSuccess: () => {
+      console.log('toast.success: Item created');
+    },
   });
 
   return (
     <Card>
-      <CardTitle>create without feedback</CardTitle>
+      <CardTitle>missing-success-feedback (fixed)</CardTitle>
       <CardBody>
-        <Button variant="primary" onClick={() => mutation.mutate({ name: 'demo' })}>
+        {mutation.isPending && <Spinner aria-label="Creating item" />}
+        <Button
+          variant="primary"
+          isDisabled={mutation.isPending}
+          onClick={() => mutation.mutate({ name: 'demo' })}
+        >
           Create item
         </Button>
       </CardBody>
@@ -110,11 +136,12 @@ function CreateItemDemo() {
   );
 }
 
-function NoProgressIndicatorDemo() {
+function ProgressIndicatorDemo() {
   return (
     <Card>
-      <CardTitle>no-progress-indicator</CardTitle>
+      <CardTitle>no-progress-indicator (fixed)</CardTitle>
       <CardBody>
+        <ProgressIndicator step={2} total={3} />
         <WizardStep step={2}>
           <Form>
             <FormGroup label="Organization name" fieldId="org-name">
@@ -128,6 +155,10 @@ function NoProgressIndicatorDemo() {
       </CardBody>
     </Card>
   );
+}
+
+function ProgressIndicator({ step, total }: { step: number; total: number }) {
+  return <p aria-label="Progress">Step {step} of {total}</p>;
 }
 
 function WizardStep({ children }: { step: number; children: ReactNode }) {

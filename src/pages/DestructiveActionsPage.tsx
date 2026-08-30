@@ -1,4 +1,14 @@
-import { Button, Title, Text, Card, CardBody, CardTitle, Grid, GridItem } from '@patternfly/react-core';
+import {
+  Alert,
+  Button,
+  Title,
+  Text,
+  Card,
+  CardBody,
+  CardTitle,
+  Grid,
+  GridItem,
+} from '@patternfly/react-core';
 import { TrashIcon } from '@patternfly/react-icons';
 
 /**
@@ -25,7 +35,10 @@ export function DestructiveActionsPage() {
         <GridItem span={12} md={6}>
           <Card>
             <CardTitle>destructive-no-confirm + no-undo</CardTitle>
-            <CardBody>
+            <CardBody style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <Alert variant="warning" title="Intentional bug" isInline isPlain>
+                Delete runs immediately with no confirmation dialog.
+              </Alert>
               <Button variant="danger" icon={<TrashIcon />} onClick={handleDelete}>
                 Delete project
               </Button>
@@ -36,7 +49,10 @@ export function DestructiveActionsPage() {
         <GridItem span={12} md={6}>
           <Card>
             <CardTitle>confirmation-fatigue</CardTitle>
-            <CardBody>
+            <CardBody style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <Alert variant="warning" title="Intentional bug" isInline isPlain>
+                Four stacked confirmations desensitize users to warnings.
+              </Alert>
               <ConfirmDialog action="archive" />
               <ConfirmDialog action="delete" />
               <ConfirmDialog action="revoke" />
@@ -66,11 +82,23 @@ function ConfirmModal({
 }) {
   if (!isOpen) return null;
   return (
-    <div role="alertdialog" aria-label={title}>
-      <p>{title}</p>
-      <button type="button" onClick={onConfirm}>
+    <div
+      role="alertdialog"
+      aria-label={title}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '0.75rem',
+        padding: '0.75rem',
+        border: '1px solid var(--pf-v5-global--BorderColor--100)',
+        borderRadius: 'var(--pf-v5-global--BorderRadius--sm)',
+      }}
+    >
+      <Text component="p">{title}</Text>
+      <Button variant="primary" onClick={onConfirm}>
         Confirm
-      </button>
+      </Button>
     </div>
   );
 }

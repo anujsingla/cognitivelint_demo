@@ -1,4 +1,5 @@
 import {
+  Alert,
   Button,
   Title,
   Text,
@@ -8,6 +9,16 @@ import {
   Grid,
   GridItem,
 } from '@patternfly/react-core';
+import {
+  InnerScrollContainer,
+  OuterScrollContainer,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+} from '@patternfly/react-table';
 
 /**
  * Rules triggered:
@@ -44,13 +55,14 @@ function UnexplainedDisabledDemo() {
   return (
     <Card>
       <CardTitle>unexplained-disabled</CardTitle>
-      <CardBody>
-        {/* Native disabled works reliably; PatternFly isDisabled is a known gap */}
+      <CardBody style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <Alert variant="warning" title="Intentional bug" isInline isPlain>
+          Disabled controls with no explanation for why they are unavailable.
+        </Alert>
         <button disabled onClick={() => {}}>
           Submit application
         </button>
-        <br />
-        <Button isDisabled style={{ marginTop: '0.5rem' }}>
+        <Button isDisabled style={{ marginTop: '0.25rem' }}>
           PatternFly isDisabled (may not flag)
         </Button>
       </CardBody>
@@ -64,7 +76,10 @@ function OwnershipAmbiguityDemo() {
   return (
     <Card>
       <CardTitle>ownership-ambiguity</CardTitle>
-      <CardBody>
+      <CardBody style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <Alert variant="warning" title="Intentional bug" isInline isPlain>
+          Shared workspace list with no owner indicators.
+        </Alert>
         <TeamWorkspace>
           <DataTable rows={items} />
         </TeamWorkspace>
@@ -79,15 +94,24 @@ function TeamWorkspace({ children }: { children: React.ReactNode }) {
 
 function DataTable({ rows }: { rows: { id: string; name: string }[] }) {
   return (
-    <table>
-      <tbody>
-        {rows.map((row) => (
-          <tr key={row.id}>
-            <td>{row.name}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <OuterScrollContainer>
+      <InnerScrollContainer>
+        <Table aria-label="Shared workspace items" variant="compact" borders isStriped>
+          <Thead>
+            <Tr>
+              <Th>Name</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {rows.map((row) => (
+              <Tr key={row.id}>
+                <Td dataLabel="Name">{row.name}</Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+      </InnerScrollContainer>
+    </OuterScrollContainer>
   );
 }
 
@@ -97,7 +121,10 @@ function MissingOwnershipDemo() {
   return (
     <Card>
       <CardTitle>missing-ownership</CardTitle>
-      <CardBody>
+      <CardBody style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <Alert variant="warning" title="Intentional bug" isInline isPlain>
+          Protected resources with no owner metadata shown.
+        </Alert>
         <PermissionCheck resource="clusters">
           <ResourceList items={resources} />
         </PermissionCheck>
@@ -112,10 +139,19 @@ function PermissionCheck({ children }: { resource: string; children: React.React
 
 function ResourceList({ items }: { items: { id: string; name: string }[] }) {
   return (
-    <ul>
-      {items.map((item) => (
-        <li key={item.id}>{item.name}</li>
-      ))}
-    </ul>
+    <Table aria-label="Protected resources" variant="compact" borders>
+      <Thead>
+        <Tr>
+          <Th>Resource</Th>
+        </Tr>
+      </Thead>
+      <Tbody>
+        {items.map((item) => (
+          <Tr key={item.id}>
+            <Td dataLabel="Resource">{item.name}</Td>
+          </Tr>
+        ))}
+      </Tbody>
+    </Table>
   );
 }

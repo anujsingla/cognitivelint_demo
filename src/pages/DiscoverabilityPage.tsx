@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import {
+  Alert,
   Button,
   Title,
   Text,
@@ -10,6 +12,7 @@ import {
   Nav,
   NavList,
   NavItem,
+  Pagination,
 } from '@patternfly/react-core';
 
 /**
@@ -47,9 +50,12 @@ function MissingSearchDemo() {
   return (
     <Card>
       <CardTitle>missing-search</CardTitle>
-      <CardBody>
+      <CardBody style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <Alert variant="warning" title="Intentional bug" isInline isPlain>
+          Paginated list with no search or filter control.
+        </Alert>
         <DataGrid rows={items} />
-        <Pagination total={100} />
+        <Pagination itemCount={100} perPage={10} page={1} variant="bottom" />
       </CardBody>
     </Card>
   );
@@ -57,7 +63,7 @@ function MissingSearchDemo() {
 
 function DataGrid({ rows }: { rows: { id: string; name: string }[] }) {
   return (
-    <ul>
+    <ul style={{ maxHeight: 160, overflow: 'auto', margin: 0, paddingLeft: '1rem' }}>
       {rows.map((row) => (
         <li key={row.id}>{row.name}</li>
       ))}
@@ -65,46 +71,51 @@ function DataGrid({ rows }: { rows: { id: string; name: string }[] }) {
   );
 }
 
-function Pagination({ total }: { total: number }) {
-  return <nav aria-label="pagination">Page 1 of {Math.ceil(total / 10)}</nav>;
-}
-
 function EmptyNavigationDemo() {
+  const [activeItem, setActiveItem] = useState<string | number>('general');
+
   return (
     <Card>
       <CardTitle>empty-navigation</CardTitle>
-      <CardBody>
-        <Nav aria-label="Settings">
+      <CardBody style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <Alert variant="warning" title="Intentional bug" isInline isPlain>
+          Navigation links use placeholder destinations that go nowhere.
+        </Alert>
+        <Nav
+          aria-label="Settings"
+          theme="light"
+          onSelect={(_event, selectedItem) => setActiveItem(selectedItem.itemId)}
+        >
           <NavList>
-            <NavItem>
-              <a href="#">General</a>
+            <NavItem itemId="general" to="#" isActive={activeItem === 'general'} preventDefault>
+              General
             </NavItem>
-            <NavItem>
-              <a href="#">Security</a>
+            <NavItem itemId="security" to="#" isActive={activeItem === 'security'} preventDefault>
+              Security
             </NavItem>
-            <NavItem>
-              <NavLink to="#">Notifications</NavLink>
+            <NavItem itemId="notifications" to="#" isActive={activeItem === 'notifications'} preventDefault>
+              Notifications
             </NavItem>
           </NavList>
         </Nav>
+        <Text component="p">Selected section: {activeItem}</Text>
       </CardBody>
     </Card>
   );
-}
-
-function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
-  return <a href={to}>{children}</a>;
 }
 
 function HiddenPrimaryActionDemo() {
   return (
     <Card>
       <CardTitle>hidden-primary-action</CardTitle>
-      <CardBody>
-        <div className="scroll-container" style={{ height: 120, overflow: 'auto' }}>
-          <p>Scroll down to find the primary action…</p>
+      <CardBody style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <Alert variant="warning" title="Intentional bug" isInline isPlain>
+          Primary action is buried inside scrollable content.
+        </Alert>
+        <div className="scroll-container" style={{ height: 120, overflow: 'auto', border: '1px solid var(--pf-v5-global--BorderColor--100)' }}>
+          <p style={{ padding: '0.75rem' }}>Scroll down to find the primary action…</p>
           <div style={{ height: 200 }} />
-          <Button variant="primary" onClick={() => {}}>
+          <Button variant="primary" onClick={() => {}} style={{ margin: '0.75rem' }}>
             Submit order
           </Button>
         </div>

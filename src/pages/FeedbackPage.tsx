@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import {
+  Alert,
   Button,
   Title,
   Text,
@@ -11,7 +12,12 @@ import {
   Form,
   FormGroup,
   TextInput,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateHeader,
+  EmptyStateIcon,
 } from '@patternfly/react-core';
+import { InboxIcon } from '@patternfly/react-icons';
 import { useMutation } from '@tanstack/react-query';
 
 /**
@@ -55,7 +61,10 @@ function MissingLoadingDemo() {
   return (
     <Card>
       <CardTitle>missing-loading-state</CardTitle>
-      <CardBody>
+      <CardBody style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <Alert variant="warning" title="Intentional bug" isInline isPlain>
+          Save starts a request but gives no loading feedback.
+        </Alert>
         <Button variant="primary" onClick={handleSave}>
           Save changes
         </Button>
@@ -70,7 +79,19 @@ function MissingEmptyStateDemo() {
   return (
     <Card>
       <CardTitle>missing-empty-state</CardTitle>
-      <CardBody>
+      <CardBody style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <Alert variant="warning" title="Intentional bug" isInline isPlain>
+          The list is empty but no empty-state message is wired to the data list.
+        </Alert>
+        <EmptyState variant="sm">
+          <EmptyStateHeader
+            titleText="Visual placeholder only"
+            icon={<EmptyStateIcon icon={InboxIcon} />}
+          />
+          <EmptyStateBody>
+            <Text component="p">This decorative empty state does not satisfy the data list rule.</Text>
+          </EmptyStateBody>
+        </EmptyState>
         <DataList aria-label="Team items" items={items} />
       </CardBody>
     </Card>
@@ -79,7 +100,7 @@ function MissingEmptyStateDemo() {
 
 function DataList({ items }: { items: { id: string; name: string }[] }) {
   return (
-    <ul>
+    <ul style={{ margin: 0, paddingLeft: '1rem' }}>
       {items.map((item) => (
         <li key={item.id}>{item.name}</li>
       ))}
@@ -101,7 +122,10 @@ function CreateItemDemo() {
   return (
     <Card>
       <CardTitle>create without feedback</CardTitle>
-      <CardBody>
+      <CardBody style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <Alert variant="warning" title="Intentional bug" isInline isPlain>
+          Create completes silently with no success confirmation.
+        </Alert>
         <Button variant="primary" onClick={() => mutation.mutate({ name: 'demo' })}>
           Create item
         </Button>
@@ -114,7 +138,10 @@ function NoProgressIndicatorDemo() {
   return (
     <Card>
       <CardTitle>no-progress-indicator</CardTitle>
-      <CardBody>
+      <CardBody style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <Alert variant="warning" title="Intentional bug" isInline isPlain>
+          Multi-step content with no progress indicator.
+        </Alert>
         <WizardStep step={2}>
           <Form>
             <FormGroup label="Organization name" fieldId="org-name">

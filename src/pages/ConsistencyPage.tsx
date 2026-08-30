@@ -1,4 +1,4 @@
-import { Button, Title, Text, Card, CardBody, CardTitle } from '@patternfly/react-core';
+import { Alert, Button, Title, Text, Card, CardBody, CardTitle } from '@patternfly/react-core';
 
 /**
  * Rules triggered:
@@ -17,16 +17,21 @@ export function ConsistencyPage() {
 
       <Card style={{ marginTop: '1rem' }}>
         <CardTitle>inconsistent-button-labels</CardTitle>
-        <CardBody style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <Button variant="primary" onClick={handlePersist}>
-            Save
-          </Button>
-          <Button variant="secondary" onClick={handlePersistAlt}>
-            Submit
-          </Button>
-          <Button variant="secondary" onClick={handlePersistAlt}>
-            Apply
-          </Button>
+        <CardBody style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <Alert variant="warning" title="Intentional bug" isInline isPlain>
+            Save, Submit, and Apply describe the same action with different labels.
+          </Alert>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <Button variant="primary" onClick={handlePersist}>
+              Save
+            </Button>
+            <Button variant="secondary" onClick={handlePersistAlt}>
+              Submit
+            </Button>
+            <Button variant="secondary" onClick={handlePersistAlt}>
+              Apply
+            </Button>
+          </div>
         </CardBody>
       </Card>
     </>

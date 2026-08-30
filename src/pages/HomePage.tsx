@@ -1,4 +1,4 @@
-import { Title, Text, List, ListItem, CodeBlock, CodeBlockCode } from '@patternfly/react-core';
+import { Title, Text, List, ListItem, CodeBlock, CodeBlockCode, Label } from '@patternfly/react-core';
 
 export function HomePage() {
   return (
@@ -10,6 +10,10 @@ export function HomePage() {
         This PatternFly app deliberately violates CognitiveLint rules so you can run a live scan
         during your talk. Each sidebar section maps to a cognitive UX category.
       </Text>
+      <div style={{ marginTop: '0.75rem' }}>
+        <Label color="orange">Expected scan: ~22 findings</Label>{' '}
+        <Label color="blue">Typical score: 87 (B)</Label>
+      </div>
 
       <Title headingLevel="h2" size="lg" style={{ marginTop: '1.5rem' }}>
         Run the scan
@@ -27,8 +31,10 @@ pnpm scan
         What to expect
       </Title>
       <List>
-        <ListItem>Built-in rules across 6 categories</ListItem>
-        <ListItem>Cognitive score</ListItem>
+        <ListItem>17 built-in rules across 6 categories</ListItem>
+        <ListItem>Low cognitive score (typically B range)</ListItem>
+        <ListItem>Findings tied to real PatternFly components</ListItem>
+        <ListItem>Some PatternFly props (e.g. isDisabled) may not trigger — great talking point</ListItem>
       </List>
     </>
   );

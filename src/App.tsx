@@ -21,6 +21,7 @@ import { TrustPage } from './pages/TrustPage';
 import { CognitiveLoadPage } from './pages/CognitiveLoadPage';
 import { DiscoverabilityPage } from './pages/DiscoverabilityPage';
 import { ConsistencyPage } from './pages/ConsistencyPage';
+import { NewRulesPage } from './pages/NewRulesPage';
 import { HomePage } from './pages/HomePage';
 
 const navItems = [
@@ -29,6 +30,7 @@ const navItems = [
   { path: '/feedback', label: 'Feedback', rules: ['missing-loading-state', 'missing-empty-state', 'missing-success-feedback', 'no-progress-indicator'] },
   { path: '/trust', label: 'Trust & Confidence', rules: ['unexplained-disabled', 'ownership-ambiguity', 'missing-ownership'] },
   { path: '/cognitive-load', label: 'Cognitive Load', rules: ['excessive-primary-actions', 'long-forms', 'filter-overload', 'dense-tables'] },
+  { path: '/new-rules', label: 'New Rules', rules: ['too-many-tabs', 'destructive-as-primary'] },
   { path: '/discoverability', label: 'Discoverability', rules: ['missing-search', 'hidden-primary-action', 'empty-navigation'] },
   { path: '/consistency', label: 'Consistency', rules: ['inconsistent-button-labels'] },
 ];
@@ -81,6 +83,7 @@ export function App() {
           <Route path="/feedback" element={<FeedbackPage />} />
           <Route path="/trust" element={<TrustPage />} />
           <Route path="/cognitive-load" element={<CognitiveLoadPage />} />
+          <Route path="/new-rules" element={<NewRulesPage />} />
           <Route path="/discoverability" element={<DiscoverabilityPage />} />
           <Route path="/consistency" element={<ConsistencyPage />} />
         </Routes>
